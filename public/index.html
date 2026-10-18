@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Image Processing Studio</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main>
+        <header class="top">
+          <div class="brand">
+            <span class="logo" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+            </span>
+            <div>
+              <h1>Image Processing API</h1>
+            </div>
+          </div>
+        </header>
+
+        <div class="workspace">
+          <section class="column">
+            <form id="form" class="card">
+              <h3>Transformations</h3>
+              <label>
+                Source Image URL
+                <input name="url" type="text" placeholder="https://example.com/photo.jpg" autocomplete="off" />
+              </label>
+              <div class="pair">
+                <label>
+                  Width (px)
+                  <input name="width" type="number" min="1" max="2048" inputmode="numeric" placeholder="800" />
+                </label>
+                <label>
+                  Height (px)
+                  <input name="height" type="number" min="1" max="2048" inputmode="numeric" placeholder="600" />
+                </label>
+              </div>
+              <div class="pair">
+                <label>
+                  Format
+                  <select name="format">
+                    <option value="">Same as source</option>
+                    <option value="webp">WebP (recommended)</option>
+                    <option value="jpeg">JPEG</option>
+                    <option value="png">PNG</option>
+                  </select>
+                </label>
+                <label>
+                  Crop Mode
+                  <select name="crop">
+                    <option value="fit">Fit (preserve ratio)</option>
+                    <option value="fill">Fill (cover)</option>
+                    <option value="crop">Crop (center)</option>
+                  </select>
+                </label>
+              </div>
+              <div class="quality-head">
+                <span>Quality</span>
+                <output id="quality-value" for="quality">80%</output>
+              </div>
+              <input id="quality" name="quality" type="range" min="1" max="100" value="80" />
+              <button type="submit">Process Image <span aria-hidden="true">→</span></button>
+            </form>
+
+            <section id="request" class="request">
+              <div class="request-heading">
+                <h3>Public Request</h3>
+                <button type="button" id="copy">Copy cURL</button>
+              </div>
+              <code id="request-url">GET /process</code>
+              <pre id="curl" hidden></pre>
+            </section>
+          </section>
+
+          <section class="column">
+            <p id="status" class="empty">Enter a source URL to compare the original and the processed image.</p>
+            <p id="error" hidden></p>
+            <section id="compare">
+              <article class="card preview">
+                <h3>Original (Source)</h3>
+                <div class="frame">
+                  <img id="original" alt="" hidden />
+                </div>
+                <div class="stats" id="original-meta">
+                  <div><span>Dimensions</span><strong id="original-dims">—</strong></div>
+                  <div><span>Format</span><strong id="original-format">—</strong></div>
+                  <div><span>Size</span><strong id="original-size">—</strong></div>
+                </div>
+              </article>
+              <article class="card preview">
+                <h3>Processed (Transformed)</h3>
+                <div class="frame">
+                  <img id="processed" alt="" hidden />
+                </div>
+                <div class="stats is-result" id="processed-meta">
+                  <div><span>Dimensions</span><strong id="processed-dims">—</strong></div>
+                  <div><span>Format</span><strong id="processed-format">—</strong></div>
+                  <div>
+                    <span>Size</span>
+                    <strong id="processed-size">—</strong>
+                    <small id="processed-saved" hidden></small>
+                  </div>
+                </div>
+              </article>
+            </section>
+          </section>
+        </div>
+      </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
