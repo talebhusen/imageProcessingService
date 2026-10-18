@@ -128,36 +128,14 @@ No CORS header. The page is served by this process and calls `/process` on the s
 
 ## Decisions
 
-Node `http` and Zod. The API is two routes. Zod parses the query and owns error messages. `http.createServer` owns the socket. Fastify and Hono would hide this path behind a router. Handwritten checks would diverge from message content.
+- **Node `http` and Zod.** Two routes. Zod parses the query. `http.createServer` owns the socket.
+- **One process, static page.** HTML, CSS, and one script call `GET /process` the same way any other client does.
+- **`sharp`.** Resize, crop, and JPEG, PNG, or WebP in this process.
+- **`node:test`.** Ships with Node, so the suite has no runner config.
+- **Block addresses at connect time.** The DNS lookup that opens the socket is the check, including after each redirect.
+- **In-memory cache of successes.** The key is the normalized URL plus the transform fields.
+- **Rate limit by socket address.** `TRUST_PROXY` uses the last `X-Forwarded-For` hop. `INFLIGHT_LIMIT` caps overlapping decodes, and identical misses share one fetch.
 
-One process and static files. The page is HTML, CSS and one script. It produces a `/process` URL and fetches it, like any other client. A React app would add a second build. A monorepo would add a second package for a single deployable.
+## Deployed
 
-`sharp` for pixels. It covers resize, cover, contain and JPEG/PNG/WebP. Shell out to ImageMagick would add a process boundary. Jimp is slower and has less format control.
-
-`node:test`. Ships with Node, so the suite has no runner config. Jest or Vitest would be another tool for a small set of tests.
-
-Block addresses at connect time. Check DNS then fetch the hostname leaves a window: the second lookup can change. Follow redirects manually keeps the same check on each hop. Blocklist package is unnecessary when ranges will fit in one function. `BlockList` is that function's backing store.
-
-In-memory cache of successes. Key is normalized URL plus transform fields. Redis is the next store when there is more than one process. `MemoryCache` is the seam: replace the class, keep `get` and `set`.
-
-Rate limit by socket address, and cap in-flight work separately. The brief asks for a budget, not accounts. Trust the forwarding header only when this process is behind one proxy, and then use the last hop so a caller cannot invent a bucket. `INFLIGHT_LIMIT` bounds overlapping decodes. Identical misses share one fetch. A disconnected caller leaves that work, and frees the slot when nobody else is waiting.
-
-## What this does not include
-
-Deployment. Optional in the brief, and does not change the grade. `GET /health` and the environment variables above are the seam. A later image can run `npm run build` and then `npm start`.
-
-Video thumbnails. That requires `ffmpeg` and a second media pipeline.
-
-A typed SDK. The page already shows the exact URL and a `curl` command. A package would repeat that string builder.
-
-OpenAPI. Worth adding once this error shape is stable. It would be the first extension: one document generated from the same Zod schema.
-
-More filters. Blur, rotate, grayscale and `format=auto` are new Zod fields and a branch in `transformImage`. They were left out to keep the pipeline one function.
-
-CI. A workflow that runs `npm test` on push. The command is already the whole suite.
-
-CORS, accounts and a shared cache. Noted above. Each is a local change when there is a real deployment in front of this process.
-
-## What I would do next
-
-Serve an OpenAPI document from the Zod schema. Put the cache and rate limiter in a shared store if more than one process runs. Add a `Dockerfile` that uses `GET /health` and the environment variables already listed.
+https://imageprocessingservice-ln7l.onrender.com/
